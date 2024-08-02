@@ -5,7 +5,7 @@ import tkinter as tk
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime, timedelta
-from VolumeController import *
+from VolumeControllerWindows import *
 import vlc
 
 
