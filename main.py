@@ -10,10 +10,11 @@ import vlc
 
 
 def get_prayer_times():
-    service = Service()
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless=new")
-    driver = webdriver.Chrome(service=service, options=options)
+    # service = Service()
+    # options = webdriver.ChromeOptions()
+    # options.add_argument("--headless=new")
+    # driver = webdriver.Chrome(service=service, options=options)
+    driver = webdriver.Chrome()
 
     driver.get("https://diegebetszeiten.de/frankfurt-de-diyanet-methode/")
 
@@ -135,8 +136,8 @@ def update_prayer_times():
             adhan_label = tk.Label(
                 root, text=adhan_times.get(prayer), font=("Arial", 16)
             )
-        label.grid(row=i, column=0, sticky="w", padx=10, pady=10)
-        adhan_label.grid(row=i, column=1, sticky="e", padx=10, pady=10)
+        label.grid(row=i, column=0, sticky="w", padx=8, pady=8)
+        adhan_label.grid(row=i, column=1, sticky="e", padx=8, pady=8)
         i += 1
 
     # calculate the remaining time to the next prayer
@@ -144,7 +145,7 @@ def update_prayer_times():
 
     # append the remaining time to the frame
     diff_label = tk.Label(root, text=difference, fg="orange", font=("Arial", 16))
-    diff_label.grid(row=7, column=0, sticky="nsew", padx=5, pady=5, columnspan=2)
+    diff_label.grid(row=7, column=0, sticky="nsew", padx=8, pady=8, columnspan=2)
 
     print("Scheduling update_prayer_times()...")
     root.after(30000, update_prayer_times)
