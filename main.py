@@ -166,9 +166,9 @@ def __play_test():
 
 def update_button_text():
     if volume_controller.muted:
-        mute_button.config(text="\U0001F508")
+        mute_button.config(image=mute_image)
     else:
-        mute_button.config(text="\U0001F50A")
+        mute_button.config(image=loud_image)
 
 
 def on_mute_button_click():
@@ -184,9 +184,12 @@ if __name__ == "__main__":
     root.geometry("600x350")
     root.attributes('-fullscreen', True)
 
+    loud_image = tk.PhotoImage(file="loud_sound.png")
+    mute_image = tk.PhotoImage(file="mute.png")
+
     # Create a button and add it to the frame
     mute_button = tk.Button(
-        root, text="\U0001F50A", font=("Arial", 100), command=on_mute_button_click
+        root, image=loud_image, command=on_mute_button_click
     )
     mute_button.grid(row=0, column=2, padx=70, rowspan=7)
 
