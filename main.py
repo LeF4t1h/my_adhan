@@ -1,42 +1,44 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
 import tkinter as tk
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 from datetime import datetime, timedelta
 from VolumeControllerWindows import *
 import vlc
+import re
+import platform
+
+if platform.system() == "Linux":
+    from VolumeControllerLinux import *
+elif platform.system() == "Windows":
+    from VolumeControllerWindows import *
+
+prayers = ["İmsak", "Güneş", "Öğle", "İkindi", "Akşam", "Yatsı"]
 
 
 def get_prayer_times():
-    # service = Service()
-    # options = webdriver.ChromeOptions()
-    # options.add_argument("--headless=new")
-    # driver = webdriver.Chrome(service=service, options=options)
-    driver = webdriver.Chrome()
-
-    driver.get("https://diegebetszeiten.de/frankfurt-de-diyanet-methode/")
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.get(
+        "https://namazvakitleri.diyanet.gov.tr/de-DE/10919/gebetszeit-fur-bensheim"
+    )
 
     try:
         # Wait for the span element with the specific text
         WebDriverWait(driver, 10).until(
             EC.text_to_be_present_in_element(
-                (By.ID, "slts-st-location-text"), "Frankfurt, DE"
+                (By.ID, "today-pray-times-row"), "Sonnenaufgang"
             )
         )
 
         # Once the text is present, find and print the element
-        location_element = driver.find_elements(By.CLASS_NAME, "slts-st-s-time-value")
+        today_pray_times_row = driver.find_element(By.ID, "today-pray-times-row")
+        times = re.findall(r"\d{2}:\d{2}", today_pray_times_row.text)
 
-        prayer_times = {
-            "Fadjr": location_element[0].text,
-            "Shuruk": location_element[1].text,
-            "Duhr": location_element[2].text,
-            "Assr": location_element[3].text,
-            "Maghrib": location_element[4].text,
-            "Ishaa": location_element[5].text,
-        }
+        prayer_times = dict(zip(prayers, times))
         return prayer_times
     finally:
         # Clean up and close the browser
@@ -101,24 +103,26 @@ def time_difference(start_time_str, end_time_str):
 def update_prayer_times():
 
     # time intervals to highlight which time interval one currently is in
-    time_intervals = [
-        (adhan_times.get("Fadjr"), adhan_times.get("Shuruk")),
-        (adhan_times.get("Shuruk"), adhan_times.get("Duhr")),
-        (adhan_times.get("Duhr"), adhan_times.get("Assr")),
-        (adhan_times.get("Assr"), adhan_times.get("Maghrib")),
-        (adhan_times.get("Maghrib"), adhan_times.get("Ishaa")),
-        (adhan_times.get("Ishaa"), adhan_times.get("Fadjr")),
-    ]
+    time_intervals = []
+    for i in range(len(prayers) - 1):
+        # case yatsi and sabah namaz
+        if i == len(prayers) - 1:
+            time_intervals.append(
+                (adhan_times.get(prayers[i]), adhan_times.get(prayers[0]))
+            )
+        else:
+            time_intervals.append(
+                (adhan_times.get(prayers[i]), adhan_times.get(prayers[i + 1]))
+            )
 
     # calculate the current prayer time interval
     current_interval = get_current_time_interval(time_intervals)
 
-    # this if-clause ignores the adhan times Fadjr and Shuruk
+    # configure which prayer times should play the adhan
     if (
-        (current_interval[0] == adhan_times.get("Duhr"))
-        or (current_interval[0] == adhan_times.get("Assr"))
-        or (current_interval[0] == adhan_times.get("Maghrib"))
-        or current_interval[0] == adhan_times.get("Ishaa")
+        (current_interval[0] == adhan_times.get(prayers[2]))
+        or (current_interval[0] == adhan_times.get(prayers[3]))
+        or (current_interval[0] == adhan_times.get(prayers[4]))
     ):
         play_adhan(current_interval[0])
 
@@ -148,7 +152,7 @@ def update_prayer_times():
     diff_label.grid(row=7, column=0, sticky="nsew", padx=8, pady=8, columnspan=2)
 
     print("Scheduling update_prayer_times()...")
-    root.after(30000, update_prayer_times)
+    root.after(60000, update_prayer_times)
 
 
 def play_adhan(interval_to_check):
@@ -161,11 +165,13 @@ def play_adhan(interval_to_check):
 
 
 def __play_test():
+    """private method to check the mp3 playing capability"""
     player = vlc.MediaPlayer("Adhan-Turkish.mp3")
     player.play()
 
 
 def update_button_text():
+    """changes the image of the mute button"""
     if volume_controller.muted:
         mute_button.config(image=mute_image)
     else:
@@ -173,6 +179,7 @@ def update_button_text():
 
 
 def on_mute_button_click():
+    """function that gets called when the mute mutton is pressed"""
     volume_controller.toggle_mute()
     update_button_text()
 
@@ -183,22 +190,19 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title("Prayer Times")
     root.geometry("600x350")
-    root.attributes('-fullscreen', True)
+    root.attributes("-fullscreen", True)
 
     loud_image = tk.PhotoImage(file="loud_sound.png")
     mute_image = tk.PhotoImage(file="mute.png")
 
     # Create a button and add it to the frame
-    mute_button = tk.Button(
-        root, image=loud_image, command=on_mute_button_click
-    )
+    mute_button = tk.Button(root, image=loud_image, command=on_mute_button_click)
     mute_button.grid(row=0, column=2, padx=70, rowspan=7)
 
     # play_button = tk.Button(root, text="play", command=__play_test)
     # play_button.grid(row=0, column=3, padx=10, pady=10)
 
     adhan_times = get_prayer_times()
-
     update_prayer_times()
 
     root.mainloop()

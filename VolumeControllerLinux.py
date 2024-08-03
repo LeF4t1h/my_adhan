@@ -3,7 +3,7 @@ import pulsectl
 
 class VolumeController:
     def __init__(self):
-        self.pulse = pulsectl.Pulse('volume-controller')
+        self.pulse = pulsectl.Pulse("volume-controller")
         self.sink = self.get_default_sink()
         self.muted = self.sink.mute
 
