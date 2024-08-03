@@ -190,7 +190,7 @@ if __name__ == "__main__":
 
     root = tk.Tk()
     root.title("Prayer Times")
-    root.geometry("600x350")
+    root.geometry("480x320")
     root.attributes("-fullscreen", True)
 
     loud_image = tk.PhotoImage(file=os.path.join(CWD, "loud_sound.png"))
