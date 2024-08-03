@@ -198,7 +198,7 @@ if __name__ == "__main__":
 
     # Create a button and add it to the frame
     mute_button = tk.Button(root, image=loud_image, command=on_mute_button_click)
-    mute_button.grid(row=0, column=2, padx=70, rowspan=7)
+    mute_button.grid(row=0, column=2, padx=150, rowspan=7)
 
     # play_button = tk.Button(root, text="play", command=__play_test)
     # play_button.grid(row=0, column=3, padx=10, pady=10)
