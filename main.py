@@ -9,13 +9,15 @@ from VolumeControllerWindows import *
 import vlc
 import re
 import platform
+import os
 
 if platform.system() == "Linux":
     from VolumeControllerLinux import *
 elif platform.system() == "Windows":
     from VolumeControllerWindows import *
 
-prayers = ["İmsak", "Güneş", "Öğle", "İkindi", "Akşam", "Yatsı"]
+PRAYERS = ["İmsak", "Güneş", "Öğle", "İkindi", "Akşam", "Yatsı"]
+CWD = os.getcwd()
 
 
 def get_prayer_times():
@@ -38,7 +40,7 @@ def get_prayer_times():
         today_pray_times_row = driver.find_element(By.ID, "today-pray-times-row")
         times = re.findall(r"\d{2}:\d{2}", today_pray_times_row.text)
 
-        prayer_times = dict(zip(prayers, times))
+        prayer_times = dict(zip(PRAYERS, times))
         return prayer_times
     finally:
         # Clean up and close the browser
@@ -104,15 +106,15 @@ def update_prayer_times():
 
     # time intervals to highlight which time interval one currently is in
     time_intervals = []
-    for i in range(len(prayers) - 1):
+    for i in range(len(PRAYERS) - 1):
         # case yatsi and sabah namaz
-        if i == len(prayers) - 1:
+        if i == len(PRAYERS) - 1:
             time_intervals.append(
-                (adhan_times.get(prayers[i]), adhan_times.get(prayers[0]))
+                (adhan_times.get(PRAYERS[i]), adhan_times.get(PRAYERS[0]))
             )
         else:
             time_intervals.append(
-                (adhan_times.get(prayers[i]), adhan_times.get(prayers[i + 1]))
+                (adhan_times.get(PRAYERS[i]), adhan_times.get(PRAYERS[i + 1]))
             )
 
     # calculate the current prayer time interval
@@ -120,9 +122,9 @@ def update_prayer_times():
 
     # configure which prayer times should play the adhan
     if (
-        (current_interval[0] == adhan_times.get(prayers[2]))
-        or (current_interval[0] == adhan_times.get(prayers[3]))
-        or (current_interval[0] == adhan_times.get(prayers[4]))
+        (current_interval[0] == adhan_times.get(PRAYERS[2]))
+        or (current_interval[0] == adhan_times.get(PRAYERS[3]))
+        or (current_interval[0] == adhan_times.get(PRAYERS[4]))
     ):
         play_adhan(current_interval[0])
 
@@ -160,13 +162,13 @@ def play_adhan(interval_to_check):
 
     now = datetime.now().strftime("%H:%M")
     if now == interval_to_check:
-        player = vlc.MediaPlayer("Adhan-Turkish.mp3")
+        player = vlc.MediaPlayer(os.path.join(CWD, "Adhan-Turkish.mp3"))
         player.play()
 
 
 def __play_test():
     """private method to check the mp3 playing capability"""
-    player = vlc.MediaPlayer("Adhan-Turkish.mp3")
+    player = vlc.MediaPlayer(os.path.join(CWD, "Adhan-Turkish.mp3"))
     player.play()
 
 
@@ -192,8 +194,8 @@ if __name__ == "__main__":
     root.geometry("600x350")
     root.attributes("-fullscreen", True)
 
-    loud_image = tk.PhotoImage(file="loud_sound.png")
-    mute_image = tk.PhotoImage(file="mute.png")
+    loud_image = tk.PhotoImage(file=os.path.join(CWD, "loud_sound.png"))
+    mute_image = tk.PhotoImage(file=os.path.join(CWD, "mute.png"))
 
     # Create a button and add it to the frame
     mute_button = tk.Button(root, image=loud_image, command=on_mute_button_click)
