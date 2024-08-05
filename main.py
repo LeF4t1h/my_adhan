@@ -105,7 +105,7 @@ def update_prayer_times():
 
     # time intervals to highlight which time interval one currently is in
     time_intervals = []
-    for i in range(len(PRAYERS) - 1):
+    for i in range(len(PRAYERS)):
         # case yatsi and sabah namaz
         if i == len(PRAYERS) - 1:
             time_intervals.append(
