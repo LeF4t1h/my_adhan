@@ -46,9 +46,9 @@ def get_prayer_times():
         driver.quit()
 
         # reschedule this method at 1 am
-        print("Scheduling get_prayer_times() at 1 am...")
+        print(f"Scheduling get_prayer_times() at {int(times[0][0:2:]):02d}:{int(times[0][3:5:]) + 5:02d} AM ...")
         now = datetime.now()
-        target_time = now.replace(hour=1, minute=0, second=0, microsecond=0)
+        target_time = now.replace(hour=int(times[0][0:2:]), minute=int(times[0][3:5:]) + 5, second=0, microsecond=0)
 
         if now >= target_time:
             # If the current time is already past 1 AM, schedule for the next day
