@@ -17,9 +17,12 @@ elif platform.system() == "Windows":
 
 PRAYERS = ["İmsak", "Güneş", "Öğle", "İkindi", "Akşam", "Yatsı"]
 CWD = os.getcwd()
+TOMORROW = datetime.min
 
 
 def get_prayer_times():
+    """Scrapes today's prayer times from the diyanet website and returns them in an array"""
+    # print("Getting prayer times...")
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     driver = webdriver.Chrome(options=chrome_options)
@@ -45,20 +48,12 @@ def get_prayer_times():
         # Clean up and close the browser
         driver.quit()
 
-        # reschedule this method at 1 am
-        print(f"Scheduling get_prayer_times() at {int(times[0][0:2:]):02d}:{int(times[0][3:5:]) + 5:02d} AM ...")
-        now = datetime.now()
-        target_time = now.replace(hour=int(times[0][0:2:]), minute=int(times[0][3:5:]) + 5, second=0, microsecond=0)
-
-        if now >= target_time:
-            # If the current time is already past 1 AM, schedule for the next day
-            target_time += timedelta(days=1)
-
-        time_diff = (
-            target_time - now
-        ).total_seconds() * 1000  # Convert to milliseconds
-
-        root.after(int(time_diff), get_prayer_times)
+        # Set tomorrow's date
+        global TOMORROW
+        tmp = datetime.now()
+        TOMORROW = tmp.replace(
+            day=tmp.day + 1, hour=0, minute=0, second=0, microsecond=0
+        )
 
 
 def get_current_time_interval(intervals):
@@ -102,6 +97,14 @@ def time_difference(start_time_str, end_time_str):
 
 
 def update_prayer_times():
+    """Updates the remaining time to the next prayer every minute. Also checks if it is necessary to update the
+    prayer times if the next day has arrived"""
+
+    # check if it is necessary to update the prayer times to the next day
+    global TOMORROW
+    if datetime.now() >= TOMORROW:
+        global adhan_times
+        adhan_times = get_prayer_times()
 
     # time intervals to highlight which time interval one currently is in
     time_intervals = []
@@ -152,7 +155,7 @@ def update_prayer_times():
     diff_label = tk.Label(root, text=difference, fg="orange", font=("Arial", 16))
     diff_label.grid(row=7, column=0, sticky="nsew", padx=8, pady=8, columnspan=2)
 
-    print("Scheduling update_prayer_times()...")
+    # print("Scheduling update_prayer_times()...")
     root.after(60000, update_prayer_times)
 
 
@@ -166,7 +169,7 @@ def play_adhan(interval_to_check):
 
 
 def __play_test():
-    """private method to check the mp3 playing capability"""
+    """private method to check the mp3 playing functionality"""
     player = vlc.MediaPlayer(os.path.join(CWD, "Adhan-Turkish.mp3"))
     player.play()
 
@@ -190,7 +193,7 @@ if __name__ == "__main__":
 
     root = tk.Tk()
     root.title("Prayer Times")
-    root.geometry("480x320")
+    root.geometry("480x320")  # size of a raspberry pi touch display
     root.attributes("-fullscreen", True)
 
     loud_image = tk.PhotoImage(file=os.path.join(CWD, "loud_sound.png"))
