@@ -1,14 +1,10 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
+from bs4 import BeautifulSoup
 import tkinter as tk
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options
 from datetime import datetime, timedelta
 import vlc
-import re
 import platform
 import os
+import requests
 
 if platform.system() == "Linux":
     from VolumeControllerLinux import *
@@ -18,36 +14,24 @@ elif platform.system() == "Windows":
 PRAYERS = ["İmsak", "Güneş", "Öğle", "İkindi", "Akşam", "Yatsı"]
 CWD = os.getcwd()
 TOMORROW = datetime.min
+LINK = "https://www.namaztakvimi.com/almanya/bensheim-ezan-vakti.html"
 
 
 def get_prayer_times():
-    """Scrapes today's prayer times from the diyanet website and returns them in an array"""
-    # print("Getting prayer times...")
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.get(
-        "https://namazvakitleri.diyanet.gov.tr/de-DE/10919/gebetszeit-fur-bensheim"
-    )
+    """Scrapes today's prayer times and returns them in an array"""
 
     try:
-        # Wait for the span element with the specific text
-        WebDriverWait(driver, 10).until(
-            EC.text_to_be_present_in_element(
-                (By.ID, "today-pray-times-row"), "Sonnenaufgang"
-            )
-        )
-
-        # Once the text is present, find and print the element
-        today_pray_times_row = driver.find_element(By.ID, "today-pray-times-row")
-        times = re.findall(r"\d{2}:\d{2}", today_pray_times_row.text)
-
+        response = requests.get(LINK)
+        html_content = response.text
+        soup = BeautifulSoup(html_content, "html.parser")
+        prayer_text = soup.find_all("h3", class_="mb-0 mt-4")
+        times = []
+        for i in range(len(prayer_text)):
+            times.append(prayer_text[i].text)
         prayer_times = dict(zip(PRAYERS, times))
+
         return prayer_times
     finally:
-        # Clean up and close the browser
-        driver.quit()
-
         # Set tomorrow's date
         global TOMORROW
         tmp = datetime.now()
