@@ -21,16 +21,14 @@ def get_prayer_times():
     """Scrapes today's prayer times and returns them in an array"""
 
     try:
-        response = requests.get(LINK)
-        html_content = response.text
-        soup = BeautifulSoup(html_content, "html.parser")
-        prayer_text = soup.find_all("h3", class_="mb-0 mt-4")
-        times = []
-        for i in range(len(prayer_text)):
-            times.append(prayer_text[i].text)
-        prayer_times = dict(zip(PRAYERS, times))
+        with requests.get(LINK) as response:
+            html_content = response.text
+            soup = BeautifulSoup(html_content, "html.parser")
+            prayer_text = soup.find_all("h3", class_="mb-0 mt-4")
+            times = [prayer.text for prayer in prayer_text]
+            prayer_times = dict(zip(PRAYERS, times))
 
-        return prayer_times
+            return prayer_times
     finally:
         # Set tomorrow's date
         global TOMORROW
@@ -92,15 +90,15 @@ def update_prayer_times():
 
     # time intervals to highlight which time interval one currently is in
     time_intervals = []
-    for i in range(len(PRAYERS)):
-        # case yatsi and sabah namaz
-        if i == len(PRAYERS) - 1:
+    for j in range(len(PRAYERS)):
+        # case [yatsi, sabah]
+        if j == len(PRAYERS) - 1:
             time_intervals.append(
-                (adhan_times.get(PRAYERS[i]), adhan_times.get(PRAYERS[0]))
+                (adhan_times.get(PRAYERS[j]), adhan_times.get(PRAYERS[0]))
             )
         else:
             time_intervals.append(
-                (adhan_times.get(PRAYERS[i]), adhan_times.get(PRAYERS[i + 1]))
+                (adhan_times.get(PRAYERS[j]), adhan_times.get(PRAYERS[j + 1]))
             )
 
     # calculate the current prayer time interval
@@ -114,30 +112,18 @@ def update_prayer_times():
     ):
         play_adhan(current_interval[0])
 
-    i = 0
-    # append the prayer times to the frame
-    for prayer in adhan_times.keys():
-        # text of current interval should be orange
-        if current_interval[0] == adhan_times.get(prayer):
-            label = tk.Label(root, text=prayer, fg="orange", font=("Arial", 16))
-            adhan_label = tk.Label(
-                root, text=adhan_times.get(prayer), fg="orange", font=("Arial", 16)
-            )
-        else:
-            label = tk.Label(root, text=prayer, font=("Arial", 16))
-            adhan_label = tk.Label(
-                root, text=adhan_times.get(prayer), font=("Arial", 16)
-            )
-        label.grid(row=i, column=0, sticky="w", padx=8, pady=8)
-        adhan_label.grid(row=i, column=1, sticky="e", padx=8, pady=8)
-        i += 1
+    for prayer, prayer_label, adhan_label in zip(PRAYERS, prayer_labels, adhan_labels):
+        prayer_label.config(
+            fg="orange" if current_interval[0] == adhan_times.get(prayer) else "black"
+        )
+        adhan_label.config(
+            text=adhan_times.get(prayer),
+            fg="orange" if current_interval[0] == adhan_times.get(prayer) else "black",
+        )
 
     # calculate the remaining time to the next prayer
     difference = time_difference(datetime.now().strftime("%H:%M"), current_interval[1])
-
-    # append the remaining time to the frame
-    diff_label = tk.Label(root, text=difference, fg="orange", font=("Arial", 16))
-    diff_label.grid(row=7, column=0, sticky="nsew", padx=8, pady=8, columnspan=2)
+    diff_label.config(text=difference)
 
     # print("Scheduling update_prayer_times()...")
     root.after(60000, update_prayer_times)
@@ -150,6 +136,8 @@ def play_adhan(interval_to_check):
     if now == interval_to_check:
         player = vlc.MediaPlayer(os.path.join(CWD, "Adhan-Turkish.mp3"))
         player.play()
+        player.stop()
+        player.release()
 
 
 def __play_test():
@@ -177,7 +165,7 @@ if __name__ == "__main__":
 
     root = tk.Tk()
     root.title("Prayer Times")
-    root.geometry("480x320")  # size of a raspberry pi touch display
+    root.geometry("480x320")  # monitor size of a raspberry pi touch display
     root.attributes("-fullscreen", True)
 
     loud_image = tk.PhotoImage(file=os.path.join(CWD, "loud_sound.png"))
@@ -191,6 +179,23 @@ if __name__ == "__main__":
     # play_button.grid(row=0, column=3, padx=10, pady=10)
 
     adhan_times = get_prayer_times()
+
+    # initialize the gui
+    prayer_labels = []
+    adhan_labels = []
+    for i, prayer_name in enumerate(adhan_times.keys()):
+        tmp_prayer_label = tk.Label(root, text=prayer_name, font=("Arial", 16))
+        tmp_prayer_label.grid(row=i, column=0, sticky="w", padx=8, pady=8)
+        prayer_labels.append(tmp_prayer_label)
+        tmp_adhan_label = tk.Label(
+            root, text=adhan_times.get(prayer_name), font=("Arial", 16)
+        )
+        tmp_adhan_label.grid(row=i, column=1, sticky="e", padx=8, pady=8)
+        adhan_labels.append(tmp_adhan_label)
+    # append the remaining time to the frame
+    diff_label = tk.Label(root, text="00:00", fg="orange", font=("Arial", 16))
+    diff_label.grid(row=7, column=0, sticky="nsew", padx=8, pady=8, columnspan=2)
+
     update_prayer_times()
 
     root.mainloop()
