@@ -134,10 +134,7 @@ def play_adhan(interval_to_check):
 
     now = datetime.now().strftime("%H:%M")
     if now == interval_to_check:
-        player = vlc.MediaPlayer(os.path.join(CWD, "Adhan-Turkish.mp3"))
         player.play()
-        player.stop()
-        player.release()
 
 
 def __play_test():
@@ -162,6 +159,8 @@ def on_mute_button_click():
 
 if __name__ == "__main__":
     volume_controller = VolumeController()
+
+    player = vlc.MediaPlayer(os.path.join(CWD, "Adhan-Turkish.mp3"))
 
     root = tk.Tk()
     root.title("Prayer Times")
