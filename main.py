@@ -5,6 +5,7 @@ import vlc
 import platform
 import os
 import requests
+import time
 
 if platform.system() == "Linux":
     from VolumeControllerLinux import *
@@ -135,12 +136,17 @@ def play_adhan(interval_to_check):
     now = datetime.now().strftime("%H:%M")
     if now == interval_to_check:
         player.play()
+        while player.is_playing():
+            time.sleep(0.1)
+        player.stop()
 
 
 def __play_test():
     """private method to check the mp3 playing functionality"""
-    player = vlc.MediaPlayer(os.path.join(CWD, "Adhan-Turkish.mp3"))
     player.play()
+    while player.is_playing():
+        time.sleep(0.1)
+    player.stop()
 
 
 def update_button_text():
