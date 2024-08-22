@@ -130,23 +130,16 @@ def update_prayer_times():
     root.after(60000, update_prayer_times)
 
 
-def play_adhan(interval_to_check):
-    """Checks if it is time to play adhan"""
+def play_adhan(adhan_time):
+    """Plays the adhan mp3 when now == prayer time"""
 
     now = datetime.now().strftime("%H:%M")
-    if now == interval_to_check:
+    if now == adhan_time:
         player.play()
+        time.sleep(1) # small delay before checking if playback has started
         while player.is_playing():
             time.sleep(0.1)
         player.stop()
-
-
-def __play_test():
-    """private method to check the mp3 playing functionality"""
-    player.play()
-    while player.is_playing():
-        time.sleep(0.1)
-    player.stop()
 
 
 def update_button_text():
