@@ -33,10 +33,8 @@ def get_prayer_times():
     finally:
         # Set tomorrow's date
         global TOMORROW
-        tmp = datetime.now()
-        TOMORROW = tmp.replace(
-            day=tmp.day + 1, hour=0, minute=0, second=0, microsecond=0
-        )
+        TOMORROW = datetime.now() + timedelta(days=1)  # calculate the next day
+        TOMORROW = TOMORROW.replace(hour=0, minute=0, second=0, microsecond=0)  # set the time to 00:00
 
 
 def get_current_time_interval(intervals):
