@@ -1,14 +1,23 @@
+import sys
+
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import vlc
 import os
 import requests
 import time
+import signal
 
 
 PRAYERS = ["İmsak", "Güneş", "Öğle", "İkindi", "Akşam", "Yatsı"]
 CWD = os.getcwd()
 LINK = "https://www.namaztakvimi.com/almanya/bensheim-ezan-vakti.html"
+
+def terminate_script(signum, frame):
+    print("Adhan Clock stopped.")
+    sys.exit(0)
+
+signal.signal(signal.SIGTERM, terminate_script)
 
 
 def get_prayer_times():
@@ -21,6 +30,10 @@ def get_prayer_times():
             prayer_text = soup.find_all("h3", class_="mb-0 mt-4")
             times = [prayer.text for prayer in prayer_text]
             prayer_times = dict(zip(PRAYERS, times))
+
+            if response.status_code != 200:
+                print(f"Error, status code: {response.status_code}")
+            print(f"Scraped prayer times: {prayer_times}")
 
             return prayer_times
     except requests.exceptions.ConnectionError:
