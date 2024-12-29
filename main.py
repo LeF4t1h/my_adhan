@@ -32,9 +32,6 @@ def get_prayer_times():
             prayer_text = soup.find_all("h3", class_="mb-0 mt-4")
             times = [prayer.text for prayer in prayer_text]
             prayer_times = dict(zip(PRAYERS, times))
-            if response.status_code != 200:
-                print(f"Error, status code: {response.status_code}")
-            print(f"Scraped prayer times: {prayer_times}")
 
             if response.status_code != 200:
                 print(f"Error, status code: {response.status_code}")
@@ -73,6 +70,7 @@ def play_adhan():
 
 
 if __name__ == "__main__":
+    time.sleep(20) # sleep 20 seconds so pulseaudio etc is ready to go
     file_name = "Adhan-Turkish.mp3"
     absolute_path = os.path.abspath(file_name)
     player = vlc.MediaPlayer(absolute_path)
