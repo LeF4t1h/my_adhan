@@ -34,4 +34,4 @@ Useful commands:
 
 `sudo systemctl enable adhan.service` to enable a service to run on startup
 
-`sudo systemctl disable <service-name>` to disable a service to run on startup
+`sudo systemctl disable adhan.service` to disable a service to run on startup
