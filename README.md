@@ -35,3 +35,5 @@ Useful commands:
 `sudo systemctl enable adhan.service` to enable a service to run on startup
 
 `sudo systemctl disable adhan.service` to disable a service to run on startup
+
+`grep CRON /var/log/syslog` check cron logs if something is not working as aspected
