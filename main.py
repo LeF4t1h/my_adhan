@@ -1,5 +1,5 @@
 import sys
-
+import subprocess
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import vlc
@@ -69,8 +69,21 @@ def play_adhan():
     player.stop()
 
 
+def check_pulseaudio():
+    # Check if PulseAudio is running
+    try:
+        subprocess.run(["pulseaudio", "--check"], check=True)
+        print("PulseAudio is already running.")
+    except subprocess.CalledProcessError:
+        print("PulseAudio is not running, starting it now...")
+        # Start PulseAudio
+        subprocess.run(["pulseaudio", "--start"])
+        time.sleep(2)  # Give PulseAudio time to start
+        print("PulseAudio started.")
+
+
 if __name__ == "__main__":
-    time.sleep(20) # sleep 20 seconds so pulseaudio etc is ready to go
+    check_pulseaudio()
     file_name = "Adhan-Turkish.mp3"
     absolute_path = os.path.abspath(file_name)
     player = vlc.MediaPlayer(absolute_path)
