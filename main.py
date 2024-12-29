@@ -8,7 +8,7 @@ import time
 
 PRAYERS = ["İmsak", "Güneş", "Öğle", "İkindi", "Akşam", "Yatsı"]
 CWD = os.getcwd()
-LINK = "https://www.namaztakvimi.com/almanya/bensheim-ezan-vakti.html"
+LINK = "https://www.namaztakvimi.com/almanya/bensheim-ezan-vakti.htmql"
 
 
 def get_prayer_times():
@@ -21,6 +21,9 @@ def get_prayer_times():
             prayer_text = soup.find_all("h3", class_="mb-0 mt-4")
             times = [prayer.text for prayer in prayer_text]
             prayer_times = dict(zip(PRAYERS, times))
+            if response.status_code != 200:
+                print(f"Error, status code: {response.status_code}")
+            print(f"Scraped prayer times: {prayer_times}")
 
             return prayer_times
     except requests.exceptions.ConnectionError:
@@ -62,3 +65,4 @@ if __name__ == "__main__":
     while True:
         check_prayer_time()
         time.sleep(60)  # sleep 60 seconds -> check prayer time every minute
+
