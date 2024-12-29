@@ -30,3 +30,8 @@ Useful commands:
 
 `sudo reboot`
 
+`sudo systemctl is-enabled adhan.timer` to check if a service will run on startup
+
+`sudo systemctl enable adhan.service` to enable a service to run on startup
+
+`sudo systemctl disable <service-name>` to disable a service to run on startup
