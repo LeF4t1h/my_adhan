@@ -10,7 +10,7 @@ import signal
 
 
 PRAYERS = ["İmsak", "Güneş", "Öğle", "İkindi", "Akşam", "Yatsı"]
-CWD = os.getcwd()
+# CWD = os.getcwd()
 LINK = "https://www.namaztakvimi.com/almanya/bensheim-ezan-vakti.html"
 
 def terminate_script(signum, frame):
@@ -68,7 +68,9 @@ def play_adhan():
 
 
 if __name__ == "__main__":
-    player = vlc.MediaPlayer(os.path.join(CWD, "Adhan-Turkish.mp3"))
+    file_name = "Adhan-Turkish.mp3"
+    absolute_path = os.path.abspath(file_name)
+    player = vlc.MediaPlayer(absolute_path)
 
     adhan_times = get_prayer_times()
 
