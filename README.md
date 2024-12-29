@@ -6,6 +6,8 @@ The service that starts the script daily at 00:00 is called **adhan.timer**, whi
 The service that stops adhan.service is a cronjob. The cronjob can only be seen with the sudo command however. It stops the service every night at 23:59.
 The bluetooth device is connected on startup with **~/bt_auto_connect.sh** with the file **/etc/rc.local**
 
+Update i changed the automatic starting and killing to crontab. Well see if that works better.
+
 Useful commands:
 
 `journalctl -u adhan.service` (press G to see the newest log entry)
