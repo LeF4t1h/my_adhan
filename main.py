@@ -87,7 +87,6 @@ if __name__ == "__main__":
     file_name = "Adhan-Turkish.mp3"
     script_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(script_dir, file_name)
-    print(file_path)
     player = vlc.MediaPlayer(file_path)
     adhan_times = get_prayer_times()
 
