@@ -85,10 +85,10 @@ def check_pulseaudio():
 if __name__ == "__main__":
     check_pulseaudio()
     file_name = "Adhan-Turkish.mp3"
-    absolute_path = os.path.abspath(file_name)
-    print(absolute_path)
-    player = vlc.MediaPlayer(absolute_path)
-
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(script_dir, file_name)
+    print(file_path)
+    player = vlc.MediaPlayer(file_path)
     adhan_times = get_prayer_times()
 
     while True:
