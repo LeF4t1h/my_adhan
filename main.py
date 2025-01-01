@@ -10,8 +10,11 @@ import signal
 
 
 PRAYERS = ["İmsak", "Güneş", "Öğle", "İkindi", "Akşam", "Yatsı"]
-# CWD = os.getcwd()
 LINK = "https://www.namaztakvimi.com/almanya/bensheim-ezan-vakti.html"
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+}
+
 
 
 def terminate_script(signum, frame):
@@ -26,7 +29,7 @@ def get_prayer_times():
     """Scrapes today's prayer times and returns them in an array"""
 
     try:
-        with requests.get(LINK) as response:
+        with requests.get(LINK, headers=headers) as response:
             html_content = response.text
             soup = BeautifulSoup(html_content, "html.parser")
             prayer_text = soup.find_all("h3", class_="mb-0 mt-4")
@@ -35,7 +38,8 @@ def get_prayer_times():
 
             if response.status_code != 200:
                 print(f"Error, status code: {response.status_code}")
-            print(f"Scraped prayer times: {prayer_times}")
+                exit()
+            print(f"Scraped prayer times for {datetime.now()}: {prayer_times}")
 
             return prayer_times
     except requests.exceptions.ConnectionError:
@@ -83,7 +87,7 @@ def check_pulseaudio():
 
 
 if __name__ == "__main__":
-    check_pulseaudio()
+    check_pulseaudio() # comment out if on windows
     file_name = "Adhan-Turkish.mp3"
     script_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(script_dir, file_name)
