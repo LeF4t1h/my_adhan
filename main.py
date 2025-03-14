@@ -93,7 +93,12 @@ if __name__ == "__main__":
     file_path = os.path.join(script_dir, file_name)
     player = vlc.MediaPlayer(file_path)
     adhan_times = get_prayer_times()
-
+    
+    # when starting the prayer for the first time, wait until it is exactly HH:00
+    now = datetime.now()
+    seconds_to_wait = 60 - now.second
+    time.sleep(seconds_to_wait)
+    
     while True:
         check_prayer_time()
         time.sleep(60)  # sleep 60 seconds -> check prayer time every minute
